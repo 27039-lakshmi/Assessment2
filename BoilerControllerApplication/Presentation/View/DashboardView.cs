@@ -1,4 +1,5 @@
 ﻿using BoilerControllerApplication.Application.Services;
+using BoilerControllerApplication.Domain.Entities;
 using BoilerControllerApplication.Domain.Enums;
 using BoilerControllerApplication.Presentation.Validators;
 
@@ -17,6 +18,8 @@ namespace BoilerControllerApplication.Presentation.View
 
         public void StartApplication()
         {
+            Console.WriteLine("Boiler Control Initialized");
+            _loggerService.AddLog(new Log(DateTime.Now,"Boiler Initialized","Started boiler control application"));
             int userChoice;
             do
             {
@@ -50,7 +53,7 @@ namespace BoilerControllerApplication.Presentation.View
                         }
                             break;
                     case 2:
-                            _boilerService.UpdateStatus(BoilerStatus.Ready);
+                         _boilerService.UpdateStatus(BoilerStatus.Ready);
                         break;
                     case 3:
                         if (_boilerService.boiler.Status == BoilerStatus.Operational)
@@ -62,7 +65,7 @@ namespace BoilerControllerApplication.Presentation.View
                             Console.WriteLine("Can simulate error only when boiler is operational");
                         }
 
-                            break;
+                        break;
                     case 4:
                         _boilerService.ToggleSwitch();
                         break;
@@ -78,6 +81,8 @@ namespace BoilerControllerApplication.Presentation.View
                         }
                             break;
                     case 6:
+                        var logs = _loggerService.GetAllLogs();
+                        DisplayLogs(logs);
                         break;
                     case 7:
                         Console.WriteLine("Exiting application");
@@ -88,6 +93,27 @@ namespace BoilerControllerApplication.Presentation.View
                 }
             }
             while (userChoice != 7);
+        }
+
+        private void DisplayLogs(IEnumerable<Log> logs)
+        {
+            string timestampLabel = "Timestamp";
+            string eventLabel = "Event";
+            string eventDataLabel = "EventData";
+            Console.WriteLine($"{timestampLabel,-25}  {eventLabel,-25}  {eventDataLabel,-30}");
+            Console.WriteLine(new string('-',90));
+            foreach(var log in logs)
+            {
+                Console.WriteLine($"{log.TimeStamp,-25}  {log.Event,-25}  {log.EventData,-30}");
+            }
+            ClearScreen();
+        }
+
+        private void ClearScreen()
+        {
+            Console.WriteLine("press any key to continue ..");
+            Console.ReadKey();
+            Console.Clear();
         }
     }
 }
