@@ -1,4 +1,5 @@
-﻿using BoilerControllerApplication.Infrastructure.Repository;
+﻿using BoilerControllerApplication.Domain.Entities;
+using BoilerControllerApplication.Infrastructure.Repository;
 
 namespace BoilerControllerApplication.Application.Services
 {
@@ -9,6 +10,16 @@ namespace BoilerControllerApplication.Application.Services
         public LoggerService(LoggerRepo loggerRepo)
         {
             this.loggerRepo = loggerRepo;
+        }
+
+        public void AddLog(Log log)
+        {
+            loggerRepo.AddLog(log);
+        }
+
+        public IEnumerable<Log> GetAllLogs()
+        {
+            return loggerRepo.GetAllLogs();
         }
     }
 }

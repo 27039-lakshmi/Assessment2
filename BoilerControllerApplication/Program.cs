@@ -12,7 +12,7 @@ namespace BoilerControllerApplication
             {
                 var loggerRepo = new LoggerRepo();
                 var loggerService = new LoggerService(loggerRepo);
-                var boilerService = new BoilerService();
+                var boilerService = new BoilerService(loggerService);
                 var dashboard = new DashboardView(loggerService, boilerService);
                 dashboard.StartApplication();
             }
