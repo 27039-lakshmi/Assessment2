@@ -2,11 +2,15 @@
 {
     public class NotificationService
     {
-        public event Action<string,ConsoleColor> Notifier;
+        public event Action<string> Notifier;
 
-        public void Notify(string message, ConsoleColor color)
+        /// <summary>
+        /// Invokes Notifier event to display notification
+        /// </summary>
+        /// <param name="message">The message to be notified</param>
+        public void Notify(string message)
         {
-            Notifier?.Invoke(message, color);
+            Notifier?.Invoke(message);
         }
     }
 }

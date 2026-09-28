@@ -6,6 +6,10 @@ namespace BoilerControllerApplication
 {
     public class Program
     {
+        /// <summary>
+        /// Entry point of application
+        /// </summary>
+        /// <param name="args">array of strings as argument</param>
         public static void Main(string[] args)
         {
             try

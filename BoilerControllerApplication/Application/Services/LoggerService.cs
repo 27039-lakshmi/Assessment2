@@ -13,12 +13,20 @@ namespace BoilerControllerApplication.Application.Services
             _notificationService = notificationService;
         }
 
+        /// <summary>
+        /// Calls repo method to add log
+        /// </summary>
+        /// <param name="log">The log needed to be added</param>
         public void AddLog(Log log)
         {
             loggerRepo.AddLog(log);
-            _notificationService.Notify($"{log.Event}: {log.EventData}",ConsoleColor.Green);
+            _notificationService.Notify($"{log.Event}: {log.EventData}");
         }
 
+        /// <summary>
+        /// Returns all the logs
+        /// </summary>
+        /// <returns>All logs that need to be traversed</returns>
         public IEnumerable<Log> GetAllLogs()
         {
             return loggerRepo.GetAllLogs();
