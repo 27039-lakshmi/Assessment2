@@ -2,6 +2,9 @@
 using BoilerControllerApplication.Domain.Entities;
 using BoilerControllerApplication.Domain.Enums;
 using BoilerControllerApplication.Presentation.Validators;
+using System.Drawing;
+using System.Net.Http.Headers;
+using System.Timers;
 
 namespace BoilerControllerApplication.Presentation.View
 {
@@ -9,11 +12,19 @@ namespace BoilerControllerApplication.Presentation.View
     {
         private LoggerService _loggerService;
         private BoilerService _boilerService;
+        private NotificationService _notificationService ;
+        private int notificationDisplayPosition = 0;
+        private CountdownService countdownService;
 
-        public DashboardView(LoggerService loggerService, BoilerService boilerService)
+        public DashboardView(LoggerService loggerService, BoilerService boilerService, NotificationService notificationService, CountdownService countdownService)
         {
             this._loggerService = loggerService;
             this._boilerService = boilerService;
+            _notificationService = notificationService;
+            _notificationService.Notifier += DisplayNotification;
+            this.countdownService = countdownService;
+            countdownService.countdownTimer.Elapsed += (sender,e) => DisplayCountdown();
+            countdownService.CountdownRemover += ClearCountdown;
         }
 
         public void StartApplication()
@@ -22,7 +33,7 @@ namespace BoilerControllerApplication.Presentation.View
             _loggerService.AddLog(new Log(DateTime.Now,"Boiler Initialized","Started boiler control application"));
             int userChoice;
             do
-            {
+            {                
                 Console.WriteLine("[1] Start boiler sequence\n" +
                                   "[2] Stop boiler sequence\n" +
                                   "[3] Simulate boiler error\n" +
@@ -35,6 +46,7 @@ namespace BoilerControllerApplication.Presentation.View
                 if(!Validator.IsValidInteger(userInput, out userChoice))
                 {
                     Console.WriteLine("Enter a valid integer");
+                    ClearHalfScreen();
                     continue;
                 }
                 switch (userChoice)
@@ -43,31 +55,33 @@ namespace BoilerControllerApplication.Presentation.View
                         if(_boilerService.CanStartBoiler())
                         {
                             _boilerService.UpdateStatus(BoilerStatus.PrePurge);
-                            _boilerService.isRunning = true;
                             _boilerService.StartBoiler();
-                            _boilerService.isRunning = false;
                         }
                         else
                         {
                             Console.WriteLine("Toggle switch to close and reset lockout and try again");
                         }
-                            break;
+                        ClearHalfScreen();
+                        break;
                     case 2:
+                         _boilerService.StopProcess();
                          _boilerService.UpdateStatus(BoilerStatus.Ready);
+                        ClearHalfScreen();
                         break;
                     case 3:
                         if (_boilerService.boiler.Status == BoilerStatus.Operational)
                         {
-                            _boilerService.UpdateStatus(BoilerStatus.Lockout);
+                            _boilerService.SimulateError();
                         }
                         else
                         {
                             Console.WriteLine("Can simulate error only when boiler is operational");
                         }
-
+                        ClearHalfScreen();
                         break;
                     case 4:
                         _boilerService.ToggleSwitch();
+                        ClearHalfScreen();
                         break;
                     case 5:
                         bool isResetSucess = _boilerService.ResetLockout();
@@ -75,11 +89,9 @@ namespace BoilerControllerApplication.Presentation.View
                         {
                             Console.WriteLine("Toggle switch to close to reset lockout");
                         }
-                        else
-                        {
-                            Console.WriteLine("Boiler Status changed to Ready");
-                        }
-                            break;
+
+                        ClearHalfScreen();
+                        break;
                     case 6:
                         var logs = _loggerService.GetAllLogs();
                         DisplayLogs(logs);
@@ -114,6 +126,48 @@ namespace BoilerControllerApplication.Presentation.View
             Console.WriteLine("press any key to continue ..");
             Console.ReadKey();
             Console.Clear();
+        }
+
+        private void ClearHalfScreen()
+        {
+            Console.WriteLine("press any key to continue ..");
+            Console.ReadKey();
+            Console.SetCursorPosition(0,0);
+            for (int i = 0; i < Console.WindowHeight/2; i++)
+            {
+                Console.WriteLine(new string(' ',Console.WindowWidth/2));
+            }
+            Console.SetCursorPosition(0, 0);
+        }
+        private void DisplayNotification(string message, ConsoleColor color)
+        {
+            int currentCursorLeftPosition = Console.CursorLeft;
+            int currentCursorTopPosition = Console.CursorTop;
+            Console.ForegroundColor = color;
+            Console.SetCursorPosition(Console.WindowWidth / 2, notificationDisplayPosition++);
+            Console.Write(message);
+            Console.SetCursorPosition(currentCursorLeftPosition,currentCursorTopPosition);
+            Console.ResetColor();
+        }
+
+        private void DisplayCountdown()
+        {
+            int currentCursorLeftPosition = Console.CursorLeft;
+            int currentCursorTopPosition = Console.CursorTop;
+            Console.SetCursorPosition(Console.WindowWidth / 3, 0);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write($"Countdown : {_boilerService.timeleft--,-2}");
+            Console.SetCursorPosition(currentCursorLeftPosition, currentCursorTopPosition);
+            Console.ResetColor();
+        }
+
+        private void ClearCountdown()
+        {
+            int currentCursorLeftPosition = Console.CursorLeft;
+            int currentCursorTopPosition = Console.CursorTop;
+            Console.SetCursorPosition(Console.WindowWidth / 3, 0);
+            Console.Write(new string(' ',15));
+            Console.SetCursorPosition(currentCursorLeftPosition, currentCursorTopPosition);
         }
     }
 }

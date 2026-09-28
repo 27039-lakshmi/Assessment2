@@ -11,9 +11,11 @@ namespace BoilerControllerApplication
             try
             {
                 var loggerRepo = new LoggerRepo();
-                var loggerService = new LoggerService(loggerRepo);
-                var boilerService = new BoilerService(loggerService);
-                var dashboard = new DashboardView(loggerService, boilerService);
+                var notificationService = new NotificationService();
+                var loggerService = new LoggerService(loggerRepo, notificationService);
+                var countdownService = new CountdownService();
+                var boilerService = new BoilerService(loggerService, countdownService);
+                var dashboard = new DashboardView(loggerService, boilerService, notificationService, countdownService);
                 dashboard.StartApplication();
             }
             catch (Exception ex)
