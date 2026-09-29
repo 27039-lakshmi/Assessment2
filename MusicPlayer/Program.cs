@@ -20,10 +20,11 @@
                 {MusicalNote.G, 392 },
                 {MusicalNote.G_, 415 }
             };
-                Console.WriteLine("Enter sequence" +
-                                  "A A# B C C# D D# E F F# G G#");
-                string input = Console.ReadLine()!.ToUpper() ?? string.Empty;
-                string[] sequence = input.Split(" ");
+
+            Console.WriteLine("Available Notes: A A# B C C# D D# E F F# G G#" +
+                                "Enter sequence");
+            string input = Console.ReadLine()!.ToUpper() ?? string.Empty;
+            string[] sequence = input.Split(" ");
             foreach (string sequenceItem in sequence)
             {
                 switch (sequenceItem)
@@ -65,14 +66,15 @@
                         musicSequence.Add(new MusicScale(MusicalNote.G_));
                         break;
                     default:
-                        Console.WriteLine("Invalid note");
+                        Console.WriteLine($"Invalid note. Skipping {sequenceItem}");
                         break;
                 }
             }
+
             foreach(var item in musicSequence)
             {
                 Console.Beep(musicSound[item.MusicalNote], 250);
             }
-            }
         }
     }
+}
